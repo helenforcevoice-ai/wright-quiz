@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Крылья братьев Райт — Тренажёр</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap');
+
+  :root {
+    --bg: #f5f0e8;
+    --paper: #fdfaf4;
+    --ink: #1a1208;
+    --ink-light: #4a3f2f;
+    --accent: #8b4513;
+    --accent-light: #c47a3a;
+    --correct: #2d5a1b;
+    --wrong: #7a1a1a;
+    --border: #c8b89a;
+    --shadow: rgba(26,18,8,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── ШАПКА ── */
+  .header {
+    background: var(--ink);
+    color: var(--bg);
+    text-align: center;
+    padding: 2.5rem 1.5rem 2rem;
+    border-bottom: 4px solid var(--accent);
+  }
+  .header-eyebrow {
+    font-size: .75rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    margin-bottom: .6rem;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 5vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .header-sub {
+    margin-top: .8rem;
+    font-size: .9rem;
+    font-style: italic;
+    color: #b8a88a;
+  }
+
+  /* ── ПРОГРЕСС ── */
+  .progress-wrap {
+    background: var(--ink);
+    padding: .6rem 1.5rem .8rem;
+    border-bottom: 2px solid var(--accent);
+  }
+  .progress-bar-track {
+    background: #3a3020;
+    border-radius: 2px;
+    height: 4px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent-light);
+    border-radius: 2px;
+    transition: width .4s ease;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: .72rem;
+    color: #8a7a60;
+    margin-top: .35rem;
+    letter-spacing: .05em;
+  }
+
+  /* ── КОНТЕЙНЕР ── */
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  /* ── КАРТОЧКА ── */
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    box-shadow: 0 2px 16px var(--shadow);
+    overflow: hidden;
+    animation: fadeUp .35s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── НАРРАТИВ ── */
+  .narrative {
+    background: #f0e8d8;
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 1.75rem;
+  }
+  .narrative-label {
+    font-size: .68rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: 'Source Serif 4', serif;
+    font-weight: 400;
+    margin-bottom: .8rem;
+  }
+  .narrative-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: .8rem;
+  }
+  .narrative p {
+    font-size: .92rem;
+    line-height: 1.75;
+    color: var(--ink-light);
+    margin-bottom: .7rem;
+  }
+  .narrative p:last-child { margin-bottom: 0; }
+  .narrative em {
+    font-style: italic;
+    color: var(--ink);
+    font-weight: 300;
+  }
+
+  /* ── ВОПРОС ── */
+  .question-block {
+    padding: 1.5rem 1.75rem 1rem;
+  }
+  .question-num {
+    font-size: .7rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .6rem;
+  }
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  /* ── ВАРИАНТЫ ── */
+  .options {
+    padding: 0 1.75rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: .65rem;
+  }
+  .option-btn {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 2px;
+    padding: .85rem 1.1rem;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Source Serif 4', serif;
+    font-size: .9rem;
+    line-height: 1.5;
+    color: var(--ink);
+    transition: border-color .18s, background .18s, transform .12s;
+    position: relative;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: #f8f0e4;
+    transform: translateX(3px);
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-btn.correct {
+    border-color: var(--correct);
+    background: #eaf4e3;
+    color: var(--correct);
+  }
+  .option-btn.wrong {
+    border-color: var(--wrong);
+    background: #f9e8e8;
+    color: var(--wrong);
+  }
+  .option-btn strong { font-weight: 700; }
+
+  /* ── ФИДБЕК ── */
+  .feedback {
+    margin: 0 1.75rem 1.5rem;
+    padding: 1rem 1.2rem;
+    border-left: 3px solid var(--accent);
+    background: #f5ece0;
+    font-size: .88rem;
+    line-height: 1.65;
+    color: var(--ink-light);
+    display: none;
+    animation: fadeIn .25s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .feedback.show { display: block; }
+  .feedback strong { color: var(--ink); }
+
+  /* ── КНОПКА ДАЛЕЕ ── */
+  .next-btn {
+    display: none;
+    margin: 0 1.75rem 1.75rem auto;
+    width: fit-content;
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    padding: .75rem 2rem;
+    font-family: 'Source Serif 4', serif;
+    font-size: .88rem;
+    letter-spacing: .08em;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background .18s;
+  }
+  .next-btn:hover { background: var(--accent); }
+  .next-btn.show { display: block; }
+
+  /* ── ИТОГ ── */
+  .result-card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 16px var(--shadow);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    animation: fadeUp .4s ease;
+  }
+  .result-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  .result-grade {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: .5rem;
+  }
+  .result-desc {
+    font-size: .95rem;
+    font-style: italic;
+    color: var(--ink-light);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+  .result-score {
+    display: inline-block;
+    border: 2px solid var(--accent);
+    padding: .5rem 1.5rem;
+    font-size: 1.1rem;
+    letter-spacing: .05em;
+    margin-bottom: 1.5rem;
+  }
+  .result-score span { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; }
+  .restart-btn {
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    padding: .8rem 2.5rem;
+    font-family: 'Source Serif 4', serif;
+    font-size: .9rem;
+    letter-spacing: .08em;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background .18s;
+  }
+  .restart-btn:hover { background: var(--accent); }
+
+  /* ── SCORE BAR ── */
+  .score-bar {
+    display: flex;
+    gap: 3px;
+    justify-content: center;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+  }
+  .score-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #d0c4b0;
+  }
+  .score-dot.ok  { background: var(--correct); }
+  .score-dot.bad { background: var(--wrong); }
+
+  /* ── INTRO ── */
+  .intro-card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 16px var(--shadow);
+    padding: 2.5rem 2rem;
+    animation: fadeUp .35s ease;
+  }
+  .intro-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .intro-card p {
+    font-size: .95rem;
+    line-height: 1.75;
+    color: var(--ink-light);
+    margin-bottom: .8rem;
+  }
+  .terms-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .5rem .8rem;
+    margin: 1.2rem 0;
+    font-size: .85rem;
+  }
+  .term-item strong {
+    color: var(--accent);
+    font-family: 'Playfair Display', serif;
+  }
+  .start-btn {
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    padding: .9rem 2.5rem;
+    font-family: 'Source Serif 4', serif;
+    font-size: .95rem;
+    letter-spacing: .08em;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background .18s;
+    margin-top: .5rem;
+    width: 100%;
+  }
+  .start-btn:hover { background: var(--accent); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.2rem 0;
+  }
+
+  @media (max-width: 500px) {
+    .narrative, .question-block, .options, .feedback, .next-btn { padding-left: 1.1rem; padding-right: 1.1rem; }
+    .terms-grid { grid-template-columns: 1fr; }
+    .header h1 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">Тренажёр мышления</div>
+  <h1>Крылья братьев Райт</h1>
+  <div class="header-sub">Различение понятий: наблюдение · гипотеза · знание · идея · прогноз · ставка</div>
+</div>
+
+<div class="progress-wrap" id="progressWrap" style="display:none">
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div class="progress-label">
+    <span id="progressText">Вопрос 1 из 13</span>
+    <span id="scoreText">0 / 0</span>
+  </div>
+</div>
+
+<div class="container" id="mainContainer">
+  <!-- INTRO -->
+  <div class="intro-card" id="introScreen">
+    <h2>О чём этот тест</h2>
+    <p>В доказательном мышлении шесть понятий часто путают — и это дорого обходится при принятии решений.</p>
+    <div class="terms-grid">
+      <div class="term-item"><strong>Наблюдение</strong> — учёт фактов</div>
+      <div class="term-item"><strong>Гипотеза</strong> — объяснение с механизмом</div>
+      <div class="term-item"><strong>Знание</strong> — подтверждённое обобщение</div>
+      <div class="term-item"><strong>Идея</strong> — замысел действия</div>
+      <div class="term-item"><strong>Прогноз</strong> — вероятностное предположение</div>
+      <div class="term-item"><strong>Ставка</strong> — решение вложить ресурсы</div>
+    </div>
+    <hr class="divider">
+    <p>13 вопросов. Нарративы из реальной истории братьев Райт. После каждого правильного ответа — объяснение.</p>
+    <button class="start-btn" onclick="startQuiz()">Начать тест →</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quizScreen" style="display:none">
+    <div class="card" id="questionCard">
+      <div class="narrative" id="narrativeBlock" style="display:none">
+        <div class="narrative-label">📖 Контекст</div>
+        <div id="narrativeTitle" class="narrative-title"></div>
+        <div id="narrativeBody"></div>
+      </div>
+      <div class="question-block">
+        <div class="question-num" id="questionNum"></div>
+        <div class="question-text" id="questionText"></div>
+      </div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="feedback" id="feedbackBlock"></div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Следующий вопрос →</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="resultScreen" style="display:none">
+    <div class="result-card">
+      <div class="result-icon">✈️</div>
+      <div class="result-grade" id="resultGrade"></div>
+      <div class="result-desc" id="resultDesc"></div>
+      <div class="result-score">
+        Результат: <span id="resultScore"></span> / 13
+      </div>
+      <div class="score-bar" id="scoreDots"></div>
+      <br>
+      <button class="restart-btn" onclick="restartQuiz()">Пройти заново</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    narrative: { title: "Что произошло с Лилиенталем", body: "В августе 1896 года Отто Лилиенталь — самый известный авиатор своего времени — погиб. Его планер потерял равновесие, он упал с пятнадцатиметровой высоты и сломал позвоночник.\n\nУилбур читал об этом вслух Орвиллу, пока тот выздоравливал от тифа. Они начали с вопроса: что именно его погубило — и можно ли это исправить?\n\nВсе конкуренты братьев начинали с ответа — с конструкции. Братья начали с вопроса." },
+    text: "«Из пяти лет работы Лилиенталь провёл в воздухе суммарно пять часов» — это:",
+    options: ["Знание — задокументированный факт из официальных отчётов", "Идея — вывод Уилбура: нужно провести в воздухе значительно больше времени", "Ставка — решение вложить собственные ресурсы, чтобы превзойти этот результат", "Наблюдение — конкретный факт, извлечённый из опубликованных материалов"],
+    correct: 3,
+    comment: "Это конкретный зафиксированный факт — число, извлечённое из источника. Никаких объяснений само по себе не содержит. Но именно это наблюдение стало отправной точкой: Уилбур понял, что Лилиенталь провёл в воздухе катастрофически мало времени."
+  },
+  {
+    text: "«Лилиенталя погубила его неспособность правильно сбалансировать машину в воздухе» — это:",
+    options: ["Наблюдение — братья изучили описания и фотографии крушения", "Гипотеза — правдоподобное предположение о причине гибели, не проверенное опытным путём", "Знание — установленная и подтверждённая техническая причина катастрофы", "Прогноз — предсказание, что без управления полёты обречены"],
+    correct: 1,
+    comment: "Братья не проводили собственного расследования. Они интерпретировали чужие материалы и связали несколько наблюдений одним объяснением. Именно эта гипотеза изменила постановку задачи: не «как взлететь», а «как сохранить управление в воздухе»."
+  },
+  {
+    narrative: { title: "Наблюдение за птицами", body: "Уилбур воспринял совет «знай, куда смотреть» буквально. По воскресеньям он ехал на берег реки и часами смотрел на птиц в полёте.\n\nОн заметил: в повороте птица поднимает один конец крыла и одновременно опускает другой. Лилиенталь управлял равновесием переносом веса тела. Птицы делали что-то принципиально иное.\n\nУилбур не придумал решение за столом. Он сначала смотрел — терпеливо и долго." },
+    text: "«Летать без понимания и умения невозможно, а умение приобретается только с опытом пребывания в воздухе» — это:",
+    options: ["Гипотеза — предположение, которое братьям ещё предстоит проверить", "Наблюдение — Уилбур видел, как другие пилоты терпели неудачи", "Прогноз — предсказание того, что произойдёт без подготовки", "Знание — подтверждённое объяснение, верное для любого лётчика"],
+    correct: 3,
+    comment: "Уилбур опирается на это как на основание для действий. Именно из этого знания вытекло решение: провести в воздухе значительно больше времени, чем Лилиенталь. Знание отличается от гипотезы тем, что уже подтверждено и обобщено."
+  },
+  {
+    text: "«Уилбур часами смотрел на птиц. Он зафиксировал: в повороте птица поднимает один конец крыла и опускает другой» — это:",
+    options: ["Гипотеза — Уилбур предположил, зачем птица так делает", "Знание — установленный орнитологами принцип управления полётом", "Прогноз — предположение, что такое движение сработает в планере", "Наблюдение — конкретный факт поведения птицы, подмеченный Уилбуром"],
+    correct: 3,
+    comment: "Это то, что было перед глазами — конкретное, повторяющееся движение без объяснений. Именно это наблюдение станет источником гипотезы о механизме управления: птица не переносит вес тела, она меняет угол крыла."
+  },
+  {
+    narrative: { title: "Картонная коробка", body: "Уилбур взял небольшую картонную коробку, отрезал у неё оба конца и показал Орвиллу, как работает его замысел. Надавливая на противоположные углы, он демонстрировал: вот так можно скручивать крылья биплана.\n\nОдно крыло встречает ветер под большим углом — создаёт большую подъёмную силу — планер кренится в нужную сторону.\n\nИменно механизм отличает гипотезу, которую можно проверить, от идеи, которую можно только обсуждать." },
+    text: "«Птицы восстанавливают равновесие не переносом веса, а управляя углом крыльев — используя динамические реакции воздуха» — это:",
+    options: ["Наблюдение — Уилбур видел, что птицы не сдвигают центр тяжести", "Знание — принцип, подтверждённый аэродинамикой и трудами Лилиенталя", "Гипотеза — правдоподобное предположение о механизме наблюдаемого поведения", "Идея — мысль о том, как изменить конструкцию крыла планера"],
+    correct: 2,
+    comment: "Уилбур видел движение птицы (наблюдение) и объяснил, как оно работает физически. Это объяснение механизма — и есть гипотеза. Именно она отделила братьев от всех предшественников. Но гипотеза остаётся гипотезой, пока не проверена."
+  },
+  {
+    text: "«Вот так должны работать крылья планера — оператор на земле будет управлять их скручиванием через систему тросов» — это:",
+    options: ["Гипотеза — утверждение о том, что скручивание изменит подъёмную силу", "Прогноз — предсказание того, как поведёт себя планер", "Знание — принцип деформации конструкций из инженерной практики", "Идея — представление о том, какое действие предпринять. Описывает намерение, но не оценивает риски"],
+    correct: 3,
+    comment: "Уилбур описывает конкретное техническое решение — что именно нужно сделать. Ни рисков, ни вероятности успеха он ещё не оценивает. Идея — это граница между «я думаю» и «я делаю». Ставкой это станет, когда братья начнут строить и тратить."
+  },
+  {
+    text: "«Если угол атаки одного крыла больше, чем у другого — на нём возникает большая подъёмная сила, и планер кренится в управляемом направлении» — это:",
+    options: ["Наблюдение — Уилбур видел, как птицы накреняются при асимметрии", "Знание — аэродинамический принцип, доказанный Лилиенталем", "Идея — мысль об использовании разных углов в конструкции", "Гипотеза — предположение о закономерности: угол → подъёмная сила → управляемый крен. Требует проверки"],
+    correct: 3,
+    comment: "Здесь сформулирован механизм: почему скручивание должно сработать — угол → подъёмная сила → крен. Это делает утверждение гипотезой, а не просто замыслом. Никто до братьев не формулировал это так точно."
+  },
+  {
+    narrative: { title: "Испытание воздушного змея", body: "Летом 1899 года братья построили воздушного змея-биплан из бамбука и бумаги — полтора метра размахом. Система тросов позволяла оператору скручивать крылья с земли.\n\nУилбур сдвинул верхнюю плоскость назад: нос клюнул вниз — именно как задумывалось. Но шнуры немедленно провисли, управление пропало.\n\nОдин элемент сработал предсказуемо. Другой немедленно отказал. Братья зафиксировали оба факта. Это и есть рабочий цикл." },
+    text: "Что является механизмом гипотезы Уилбура о скручивании крыла?",
+    options: ["Птицы восстанавливают равновесие иначе, чем это делал Лилиенталь", "Конструкция биплана устойчивее моноплана при боковом порыве ветра", "Разные углы атаки двух крыльев создают разную подъёмную силу — это вызывает управляемый крен", "Крыло из бамбука и бумаги при нагрузке деформируется предсказуемо"],
+    correct: 2,
+    comment: "Механизм — это причинно-следственная цепочка, которая объясняет, почему гипотеза должна сработать. Именно наличие механизма делает гипотезу проверяемой. Без механизма это была бы просто идея.",
+    isMechanism: true
+  },
+  {
+    text: "«Когда Уилбур сдвинул верхнюю плоскость назад, нос машины клюнул вниз» — это:",
+    options: ["Знание — испытание подтвердило гипотезу о скручивании", "Гипотеза — братья ожидали именно такого поведения", "Прогноз — предсказанное заранее поведение аппарата", "Наблюдение — конкретный факт поведения аппарата, зафиксированный в ходе испытания"],
+    correct: 3,
+    comment: "Это то, что произошло перед глазами в конкретный момент. Важно: впервые что-то сработало именно так, как предсказывала гипотеза. Это первое наблюдение в пользу механизма скручивания. Вывод из него — следующий шаг, не этот."
+  },
+  {
+    text: "«Несмотря на то что модель разбилась, братья решили: испытание «отчётливо продемонстрировало эффективность системы управления» — и они готовы строить пилотируемый планер» — это:",
+    options: ["Знание — испытание подтвердило гипотезу, теперь на неё можно опираться уверенно", "Наблюдение — братья зафиксировали, что аппарат повёл себя предсказуемо", "Гипотеза — один частичный результат одного испытания не делает её знанием", "Прогноз — предсказание того, что пилотируемый планер полетит успешно"],
+    correct: 2,
+    comment: "Один элемент сработал, другой немедленно отказал. Гипотеза получила частичное подтверждение, но не стала знанием — знание требует воспроизводимости. Это и есть рабочий цикл: не праздновать и не паниковать, а читать данные."
+  },
+  {
+    narrative: { title: "Выбор Китти-Хок", body: "Для следующего шага нужен был сильный и устойчивый ветер. Уилбур запросил Метеорологическое бюро США и получил таблицы с данными более чем со ста метеостанций.\n\nОни нашли Китти-Хок — маленький городок в 1100 километрах от Дейтона. Построили планер за 15 долларов. Шанют предлагал деньги. Уилбур вежливо отказался.\n\nДанных было достаточно для следующего шага. Не для уверенности в результате. Для следующего шага." },
+    text: "«Метеорологическое бюро прислало таблицы: в Китти-Хок ветер нужной силы фиксировался бо́льшую часть года на протяжении многих лет» — это:",
+    options: ["Знание — государственные метеоданные прошли официальную верификацию", "Идея — замысел использовать Китти-Хок как место для испытаний", "Прогноз — вывод о будущей погоде на основании исторических измерений", "Наблюдение — систематически собранные данные; для братьев это внешний факт, который они принимают как данность"],
+    correct: 3,
+    comment: "Метеоданные — это организованный учёт событий, то есть наблюдение. Братья принимают их как факт, но сами в Китти-Хок ещё не были. Авторитетные данные — это ещё не решение и не знание. Они станут основанием для прогноза — и только потом для ставки."
+  },
+  {
+    text: "«В Китти-Хок будет достаточно ветра для испытаний планера» — это:",
+    options: ["Наблюдение — Уилбур изучил таблицы и выписал нужные цифры", "Ставка — решение ехать в Китти-Хок, принятое на основании данных", "Знание — данные бюро достаточно надёжны, чтобы считаться фактом", "Прогноз — вероятностное предположение о будущем результате на основе исторических данных"],
+    correct: 3,
+    comment: "Уилбур смотрит на прошлые измерения и делает вывод о будущем. Это не гарантия — это вероятностное предположение, которое может не сбыться. Прогноз нужен не для уверенности, а чтобы обосновать ставку: если ветер будет — есть смысл ехать."
+  },
+  {
+    text: "«Изучив таблицы и построив планер за 15 долларов, Уилбур принял решение: едем в Китти-Хок. Гипотеза проверена один раз, на модели из бамбука. Никто из братьев не знал, что их ждёт на побережье.»",
+    options: ["Прогноз — братья предсказывали успех полётов на основании частичного результата", "Гипотеза — предположение, что управление скручиванием сработает на полноразмерном планере", "Идея — замысел поехать в Китти-Хок и испытать планер", "Ставка — осознанное решение вложить ресурсы, принимая возможность неудачи ради потенциальной выгоды"],
+    correct: 3,
+    comment: "Братья не просто предсказали — они поехали. Гипотеза частично подтверждена, прогноз по ветру есть, исход неизвестен. Ставка — это момент, когда обдумывание заканчивается и начинается действие. У них не было никаких преимуществ — кроме одного: они умели принимать ставку на основании достаточного, а не полного знания."
+  }
+];
+
+const GRADES = [
+  { min: 13, title: "Инженер мышления", desc: "Вы думаете так же, как братья Райт — моделями, а не словами." },
+  { min: 10, title: "Исследователь",    desc: "Вы понимаете механизмы. Осталось довести до автоматизма." },
+  { min: 7,  title: "Аналитик",         desc: "Вы различаете категории. Хороший старт." },
+  { min: 0,  title: "Наблюдатель",      desc: "Вы видите факты. Следующий шаг — научиться их классифицировать." }
+];
+
+let current = 0;
+let score = 0;
+let answers = [];
+let shuffled = [];
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - .5);
+}
+
+function startQuiz() {
+  current = 0; score = 0; answers = [];
+  shuffled = QUESTIONS.map(q => {
+    if (q.isMechanism) return { ...q, _order: [0,1,2,3] };
+    const order = shuffle([0,1,2,3]);
+    return { ...q, _order: order };
+  });
+  document.getElementById('introScreen').style.display = 'none';
+  document.getElementById('quizScreen').style.display = 'block';
+  document.getElementById('progressWrap').style.display = 'block';
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = shuffled[current];
+  updateProgress();
+
+  // narrative
+  const nb = document.getElementById('narrativeBlock');
+  if (q.narrative) {
+    nb.style.display = 'block';
+    document.getElementById('narrativeTitle').textContent = q.narrative.title;
+    const body = document.getElementById('narrativeBody');
+    body.innerHTML = '';
+    q.narrative.body.split('\n\n').forEach(p => {
+      const el = document.createElement('p');
+      el.innerHTML = p.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      body.appendChild(el);
+    });
+  } else {
+    nb.style.display = 'none';
+  }
+
+  document.getElementById('questionNum').textContent = `Вопрос ${current + 1} из ${QUESTIONS.length}`;
+  document.getElementById('questionText').textContent = q.text;
+
+  const opts = document.getElementById('optionsContainer');
+  opts.innerHTML = '';
+  q._order.forEach(i => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.dataset.idx = i;
+    // strip markdown bold
+    btn.innerHTML = q.options[i].replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+
+  document.getElementById('feedbackBlock').className = 'feedback';
+  document.getElementById('feedbackBlock').innerHTML = '';
+  document.getElementById('nextBtn').className = 'next-btn';
+
+  // re-animate
+  const card = document.getElementById('questionCard');
+  card.style.animation = 'none';
+  requestAnimationFrame(() => { card.style.animation = ''; });
+}
+
+function selectAnswer(idx) {
+  const q = shuffled[current];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => {
+    b.disabled = true;
+    if (parseInt(b.dataset.idx) === q.correct) b.classList.add('correct');
+    if (parseInt(b.dataset.idx) === idx && idx !== q.correct) b.classList.add('wrong');
+  });
+
+  const isCorrect = idx === q.correct;
+  if (isCorrect) score++;
+  answers.push(isCorrect);
+
+  const fb = document.getElementById('feedbackBlock');
+  fb.innerHTML = (isCorrect ? '✓ ' : '✗ ') + q.comment;
+  fb.className = 'feedback show';
+
+  document.getElementById('nextBtn').className = 'next-btn show';
+  document.getElementById('nextBtn').textContent = current < QUESTIONS.length - 1 ? 'Следующий вопрос →' : 'Посмотреть результат →';
+}
+
+function nextQuestion() {
+  current++;
+  if (current < QUESTIONS.length) {
+    showQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quizScreen').style.display = 'none';
+  document.getElementById('progressWrap').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'block';
+
+  const grade = GRADES.find(g => score >= g.min);
+  document.getElementById('resultGrade').textContent = grade.title;
+  document.getElementById('resultDesc').textContent = grade.desc;
+  document.getElementById('resultScore').textContent = score;
+
+  const dots = document.getElementById('scoreDots');
+  dots.innerHTML = '';
+  answers.forEach(ok => {
+    const d = document.createElement('div');
+    d.className = 'score-dot ' + (ok ? 'ok' : 'bad');
+    dots.appendChild(d);
+  });
+}
+
+function restartQuiz() {
+  document.getElementById('resultScreen').style.display = 'none';
+  startQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const pct = (current / QUESTIONS.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `Вопрос ${current + 1} из ${QUESTIONS.length}`;
+  document.getElementById('scoreText').textContent = `${score} / ${current}`;
+}
+</script>
+</body>
+</html>
